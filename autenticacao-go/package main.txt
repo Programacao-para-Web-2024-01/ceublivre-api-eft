@@ -1,0 +1,120 @@
+package main
+
+import (
+	context
+	encodingjson
+	log
+	nethttp
+	time
+
+	github.comdgrijalvajwt-go
+	github.comgorillamux
+)
+
+var secretKey = []byte(suaChaveSecretaSuperSecreta)
+
+ Credentials representa as credenciais de login
+type Credentials struct {
+	Username string `jsonusername`
+	Password string `jsonpassword`
+}
+
+ Claims representa os claims do token JWT
+type Claims struct {
+	User string `jsonuser`
+	jwt.StandardClaims
+}
+
+func main() {
+	router = mux.NewRouter()
+
+	router.HandleFunc(login, login).Methods(POST)
+	router.HandleFunc(recurso-protegido, verifyToken(recursoProtegido)).Methods(GET)
+	router.HandleFunc(, func(w http.ResponseWriter, r http.Request) {
+		w.Write([]byte(Servidor secreto))
+	})
+
+	log.Println(Servidor rodando em httplocalhost3000)
+	log.Fatal(http.ListenAndServe(3000, router))
+}
+
+func login(w http.ResponseWriter, r http.Request) {
+	var creds Credentials
+	err = json.NewDecoder(r.Body).Decode(&creds)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	 Exemplo básico de autenticação
+	if creds.Username == usuario && creds.Password == senha {
+		expirationTime = time.Now().Add(1  time.Hour)
+		claims = &Claims{
+			User creds.Username,
+			StandardClaims jwt.StandardClaims{
+				ExpiresAt expirationTime.Unix(),
+			},
+		}
+
+		token = jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, err = token.SignedString(secretKey)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set(Content-Type, applicationjson)
+		json.NewEncoder(w).Encode(map[string]string{token tokenString})
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{error Credenciais inválidas})
+	}
+}
+
+func recursoProtegido(w http.ResponseWriter, r http.Request) {
+	user = r.Context().Value(user).(Claims).User
+	response = map[string]string{message Você acessou o recurso protegido!, user user}
+	w.Header().Set(Content-Type, applicationjson)
+	json.NewEncoder(w).Encode(response)
+}
+
+func verifyToken(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r http.Request) {
+		tokenString = r.Header.Get(Authorization)
+
+		if tokenString ==  {
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{error Token não fornecido})
+			return
+		}
+
+		token, err = jwt.ParseWithClaims(tokenString, &Claims{}, func(token jwt.Token) (interface{}, error) {
+			return secretKey, nil
+		})
+
+		if err != nil  !token.Valid {
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{error Token inválido})
+			return
+		}
+
+		claims, ok = token.Claims.(Claims)
+		if !ok {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{error Erro ao obter claims do token})
+			return
+		}
+
+		ctx = context.WithValue(r.Context(), user, claims)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+ Comando de Gerar token 
+$body = @{username=usuario; password=senha}  ConvertTo-Json
+
+# Envie a solicitação POST
+$response = Invoke-WebRequest -Uri httplocalhost3000login -Method POST -Body $body -ContentType applicationjson
+
+# Exiba a resposta
+$response.Content
