@@ -2,29 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Registro</title>
 </head>
 <body>
-    <h2>Login</h2>
-    <form id="loginForm" onsubmit="login(event)">
+    <h2>Registro</h2>
+    <form id="registroForm" onsubmit="register(event)">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required><br><br>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required><br><br>
-        <button type="submit">Login</button>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        <button type="submit">Registrar</button>
     </form>
-    
-    <p><a href="/registro">Novo usuário? Registre-se aqui!</a></p> <!-- Link para a página de registro -->
-    <p><a href="/esqueci-senha">Esqueci a senha</a></p> <!-- Link para "Esqueci a senha" -->
 
     <script>
-        async function login(event) {
+        async function register(event) {
             event.preventDefault();
 
-            const form = document.getElementById('loginForm');
+            const form = document.getElementById('registroForm');
             const formData = new FormData(form);
 
-            const response = await fetch('/login', {
+            const response = await fetch('/registro', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -34,10 +33,10 @@
 
             const data = await response.json();
             if (response.ok) {
-                alert('Login successful! Token enviado para o seu email.');
-                window.location.href = '/verificar-token'; // Redireciona para a página de verificação do token
+                alert('Registro realizado com sucesso!');
+                window.location.href = '/login'; // Redireciona após o registro
             } else {
-                alert(data.error || 'Login failed. Please check your credentials.');
+                alert('Erro ao registrar. Verifique os dados e tente novamente.');
             }
         }
     </script>

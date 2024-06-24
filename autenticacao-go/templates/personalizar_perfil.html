@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalizar Perfil</title>
+</head>
+<body>
+    <h1>Personalizar Perfil</h1>
+
+    <form id="perfilForm">
+        <label for="currentUsername">Nome de Usuário Atual:</label><br>
+        <input type="text" id="currentUsername" name="currentUsername" required><br><br>
+
+        <label for="currentPassword">Senha Atual:</label><br>
+        <input type="password" id="currentPassword" name="currentPassword" required><br><br>
+
+        <label for="newUsername">Novo Nome de Usuário:</label><br>
+        <input type="text" id="newUsername" name="newUsername"><br><br>
+
+        <label for="newPassword">Nova Senha:</label><br>
+        <input type="password" id="newPassword" name="newPassword"><br><br>
+
+        <button type="submit">Atualizar Perfil</button>
+    </form>
+
+    <div id="message"></div>
+
+    <script>
+        document.getElementById('perfilForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Evita o comportamento padrão de enviar o formulário
+
+            // Coletar os dados do formulário
+            var formData = {
+                currentUsername: document.getElementById('currentUsername').value,
+                currentPassword: document.getElementById('currentPassword').value,
+                newUsername: document.getElementById('newUsername').value,
+                newPassword: document.getElementById('newPassword').value
+            };
+
+            // Enviar requisição POST para /atualizar-perfil
+            fetch('/atualizar-perfil', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('message').innerText = data.message;
+            })
+            .catch(error => {
+                console.error('Erro ao atualizar perfil:', error);
+                document.getElementById('message').innerText = 'Erro ao atualizar perfil. Por favor, tente novamente.';
+            });
+        });
+    </script>
+</body>
+</html>

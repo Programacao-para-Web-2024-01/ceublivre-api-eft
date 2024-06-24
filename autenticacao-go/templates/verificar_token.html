@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Token</title>
+</head>
+<body>
+    <h1>Verificar Token</h1>
+    <form id="tokenForm">
+        <label for="username">Nome de Usuário:</label><br>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="token">Token:</label><br>
+        <input type="text" id="token" name="token" required><br><br>
+
+        <button type="submit">Verificar Token</button>
+    </form>
+
+    <div id="message"></div>
+
+    <script>
+        document.getElementById('tokenForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Evita o comportamento padrão de enviar o formulário
+
+            // Coletar os dados do formulário
+            var formData = {
+                username: document.getElementById('username').value,
+                token: document.getElementById('token').value
+            };
+
+            // Enviar requisição POST para /verificar-token
+            fetch('/verificar-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao verificar token');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.message) {
+                    document.getElementById('message').innerText = data.message;
+                    // Redirecionar para a página de perfil após a verificação do token
+                    window.location.href = '/perfil';
+                } else {
+                    throw new Error('Erro ao verificar token');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao verificar token:', error);
+                document.getElementById('message').innerText = 'Erro ao verificar token. Por favor, tente novamente.';
+            });
+        });
+    </script>
+</body>
+</html>
