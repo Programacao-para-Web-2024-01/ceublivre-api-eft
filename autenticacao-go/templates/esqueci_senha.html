@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esqueci a Senha</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input[type="email"] {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h2>Esqueci a Senha</h2>
+    <form id="esqueciSenhaForm">
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <button type="submit">Enviar Token</button>
+    </form>
+
+    <script>
+        document.getElementById('esqueciSenhaForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); 
+
+            
+            const formData = new FormData(this);
+
+            try {
+                
+                const response = await fetch('/esqueci-senha', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(Object.fromEntries(formData.entries()))
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert('Token enviado com sucesso! Verifique seu email.');
+                    window.location.href = '/login';
+                } else {
+                    throw new Error('Erro ao enviar token');
+                }
+            } catch (error) {
+                console.error('Erro ao enviar token:', error);
+                alert('Erro ao enviar token. Verifique seu email e tente novamente.');
+            }
+        });
+    </script>
+</body>
+</html>
