@@ -19,10 +19,10 @@ var (
 		Password string `json:"password"`
 		Email    string `json:"email"`
 	}{}
-	sessionTimeout = 15 * time.Minute // Tempo de expiração da sessão
+	sessionTimeout = 15 * time.Minute 
 )
 
-// Credentials representa as credenciais de login
+
 type Credentials struct {
 	Username        string `json:"username"`
 	Password        string `json:"password"`
@@ -32,7 +32,7 @@ type Credentials struct {
 	NewUsername     string `json:"newUsername"`
 }
 
-// Claims representa os claims do token JWT
+
 type Claims struct {
 	User string `json:"user"`
 	jwt.StandardClaims
@@ -41,11 +41,11 @@ type Claims struct {
 func main() {
 	router := mux.NewRouter()
 
-	// Servir arquivos estáticos da pasta templates
+	
 	fs := http.FileServer(http.Dir("./templates"))
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 
-	// Rotas
+	
 	router.HandleFunc("/atualizar-perfil", atualizarPerfil).Methods("POST")
 	router.HandleFunc("/perfil", servePersonalizarPerfilPage).Methods("GET")
 	router.HandleFunc("/login", serveLoginPage).Methods("GET")
@@ -90,20 +90,20 @@ func register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verificar se o usuário já existe
+	
 	if _, exists := users[creds.Username]; exists {
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Usuário já existe"})
 		return
 	}
 
-	// Adicionar novo usuário ao mapa
+	
 	users[creds.Username] = struct {
 		Password string `json:"password"`
 		Email    string `json:"email"`
-	}{Password: creds.Password, Email: creds.Email} // Incluindo o campo Email
+	}{Password: creds.Password, Email: creds.Email} 
 
-	// Retornar resposta de sucesso
+	
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Usuário registrado com sucesso"})
 }
@@ -116,7 +116,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verificar as credenciais
+	
 	user, exists := users[creds.Username]
 	if !exists || creds.Password != user.Password {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -124,19 +124,19 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Gerar token de 5 dígitos aleatórios
+	
 	token := generateRandomToken(5)
 	fmt.Printf("Token de autenticação enviado para %s: %s\n", user.Email, token)
 
-	// Armazenar o token em um cookie
+	
 	http.SetCookie(w, &http.Cookie{
 		Name:    "auth_token",
 		Value:   token,
-		Expires: time.Now().Add(5 * time.Minute), // O token expira em 5 minutos
+		Expires: time.Now().Add(5 * time.Minute), 
 		Path:    "/",
 	})
 
-	// Retornar resposta JSON indicando que o token foi enviado
+	
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "Token de autenticação enviado para seu email"})
 }
@@ -159,7 +159,7 @@ func esqueciSenha(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verificar se o email existe no mapa de usuários
+	
 	var username string
 	emailFound := false
 	for user, info := range users {
@@ -176,10 +176,10 @@ func esqueciSenha(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Simulação de geração de token de redefinição de senha
+	
 	resetToken := generateResetToken()
 
-	// Simulação de envio do token por e-mail
+	
 	fmt.Printf("Token de redefinição gerado para %s (%s): %s\n", username, creds.Email, resetToken)
 
 	w.WriteHeader(http.StatusOK)
@@ -205,29 +205,29 @@ func generateToken(username string) (string, error) {
 }
 
 func generateResetToken() string {
-	// Simulação de geração de token aleatório para redefinição de senha
+	
 	return generateRandomToken(5)
 }
 
 func recursoProtegido(w http.ResponseWriter, r *http.Request) {
-	// Simule o usuário obtido do contexto (substitua com sua lógica real)
+	
 	user := "Usuário Teste"
 
-	// Carregar o template HTML
+	
 	tmpl, err := template.ParseFiles("templates/recurso_protegido.html")
 	if err != nil {
 		http.Error(w, "Erro ao carregar template", http.StatusInternalServerError)
 		return
 	}
 
-	// Dados a serem passados para o template
+	
 	data := struct {
 		Username string
 	}{
 		Username: user,
 	}
 
-	// Renderizar o template com os dados fornecidos
+	
 	w.Header().Set("Content-Type", "text/html")
 	err = tmpl.Execute(w, data)
 	if err != nil {
@@ -238,20 +238,20 @@ func recursoProtegido(w http.ResponseWriter, r *http.Request) {
 func elementoProtegido(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value("user").(*Claims).User
 	fmt.Printf("Usuário acessando elemento protegido: %s\n", user)
-	// Aqui você pode implementar a lógica para o elemento protegido
+	
 	http.Redirect(w, r, "https://loldle.net/", http.StatusSeeOther)
 }
 
 func verifySession(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Obter token do cookie
+		
 		cookie, err := r.Cookie("session_token")
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
-		// Validar token JWT
+		
 		tokenString := cookie.Value
 		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 			return secretKey, nil
@@ -268,7 +268,7 @@ func verifySession(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		// Adicionar claims ao contexto da requisição
+		
 		ctx := context.WithValue(r.Context(), "user", claims)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
@@ -287,7 +287,7 @@ func atualizarPerfil(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verificar se o usuário existe e se a senha atual está correta
+	
 	user, exists := users[creds.CurrentUsername]
 	if !exists || creds.CurrentPassword != user.Password {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -295,27 +295,27 @@ func atualizarPerfil(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verificar se o novo nome de usuário já existe
+	
 	if _, exists := users[creds.NewUsername]; exists {
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Novo nome de usuário já existe"})
 		return
 	}
 
-	// Atualizar o nome de usuário e a senha (se fornecidos)
+	
 	if creds.NewUsername != "" {
-		// Atualizar o mapa de usuários
+		
 		users[creds.NewUsername] = users[creds.CurrentUsername]
 		delete(users, creds.CurrentUsername)
 	}
 
 	if creds.NewPassword != "" {
-		// Atualizar a senha
+		
 		user.Password = creds.NewPassword
 		users[creds.NewUsername] = user
 	}
 
-	// Retornar resposta de sucesso
+	
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Perfil atualizado com sucesso"})
 }
@@ -335,21 +335,21 @@ func verificarToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Verificar o token no cookie
+	
 	cookie, err := r.Cookie("auth_token")
 	if err != nil || cookie.Value != creds.Token {
 		http.Error(w, "Token inválido ou expirado", http.StatusUnauthorized)
 		return
 	}
 
-	// Token válido, gerar token JWT para a sessão
+	
 	sessionToken, err := generateToken(creds.Username)
 	if err != nil {
 		http.Error(w, "Erro ao gerar token JWT", http.StatusInternalServerError)
 		return
 	}
 
-	// Definir cookie de sessão
+	
 	http.SetCookie(w, &http.Cookie{
 		Name:    "session_token",
 		Value:   sessionToken,
@@ -357,7 +357,7 @@ func verificarToken(w http.ResponseWriter, r *http.Request) {
 		Path:    "/",
 	})
 
-	// Responder com sucesso e mensagem JSON
+	
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Token verificado com sucesso"})
 }
